@@ -144,7 +144,7 @@ for power in range(1, 6):
     D[freedofs]=spsolve(KG[np.ix_(freedofs,freedofs)],F[freedofs])
     end=time.time()
     print("")
-    print("Tempo: %f" %(end-start))
+    print("Time: %f" %(end-start))
     print("Done")
     print("")
     
