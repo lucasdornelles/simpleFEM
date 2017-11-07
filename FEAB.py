@@ -5,7 +5,7 @@ Created on Tue Oct 24 12:25:56 2017
 @author: Lucas
 """
 
-#2D FEA Benchmarking on python#
+#2D FEA on python#
 
 #INITIALIZING#
 
@@ -21,21 +21,6 @@ nu=0.3
 h=0.01
 gam=1.
 
-
-"""
-#isoparametric quadrilateral stiffness matrix#
-
-psi=np.array([(1+nu)*gam, (1-(3*nu))*gam, 2+((1-(nu))*(gam**2)), (2*(gam**2))+(1-nu), ((1-nu)*(gam**2))-4, ((1-nu)*(gam**2))-1, (4*(gam**2))-(1-nu), (gam**2)-(1-nu)])
-
-K01=((E*h)/(24*gam*(1-(nu**2))))*np.array([[ 4*psi[2], 3*psi[0], 2*psi[4],-3*psi[1],-2*psi[2],-3*psi[0],-4*psi[5], 3*psi[1]],
-                                          [ 3*psi[0], 4*psi[3], 3*psi[1], 4*psi[7],-3*psi[0],-2*psi[3],-3*psi[1],-2*psi[6]],
-                                          [ 2*psi[4], 3*psi[1], 4*psi[2],-3*psi[0],-4*psi[5],-3*psi[1],-2*psi[2], 3*psi[0]],
-                                          [-3*psi[1], 4*psi[7],-3*psi[0], 4*psi[3], 3*psi[1],-2*psi[6], 3*psi[0],-2*psi[3]],
-                                          [-2*psi[2],-3*psi[0],-4*psi[5], 3*psi[1], 4*psi[2], 3*psi[0], 2*psi[4],-3*psi[1]],
-                                          [-3*psi[0],-2*psi[3],-3*psi[1],-2*psi[6], 3*psi[0], 4*psi[3], 3*psi[1], 4*psi[7]],
-                                          [-4*psi[5],-3*psi[1],-2*psi[2], 3*psi[0], 2*psi[4], 3*psi[1], 4*psi[2],-3*psi[0]],
-                                          [ 3*psi[1],-2*psi[6], 3*psi[0],-2*psi[3],-3*psi[1], 4*psi[7],-3*psi[0], 4*psi[3]]])
-"""
 #initialize iterations#
 
 for power in range(1, 6):
@@ -47,7 +32,7 @@ for power in range(1, 6):
     dx=1
     dy=1
     
-    print("numero de elementos: %d" %(nelx*nely))
+    print("Number of elements: %d" %(nelx*nely))
     
     numnp=(nelx+1)*(nely+1)
     
@@ -77,8 +62,8 @@ for power in range(1, 6):
     icon=np.ndarray.tolist(np.zeros(numpb))
     rec=np.ndarray.tolist(np.zeros(numpb))
     
-    # Definido as condicoes de contorno#
-    # As condicoes de contorno sao colocadas no grau de liberdade#
+    # Defining boundary conditions#
+    # The boundary condition are defined on nodes degrees of freedom#
     for i in range(numpb-1):
         iconh1[i]=i
     
@@ -92,9 +77,9 @@ for power in range(1, 6):
             freedofs.remove(iconh1[i])
     
     
-    #Formar a matriz de rigidez global#
+    #Setting global stiffness matrix#
     
-    print("Montando matriz global")
+    print("Setting global matrix")
     start=time.time()
     
     KG=lil_matrix(((nely+1)*(nelx+1)*2,(nely+1)*(nelx+1)*2))
@@ -102,7 +87,7 @@ for power in range(1, 6):
     for i in range(0,(nely*nelx)):
         
         e=i+1
-        print("\r elemento analisado: " .format(e)+str(e), end="")
+        print("\r analised element: " .format(e)+str(e), end="")
         i1=kone1[i]-1
         i2=kone2[i]-1
         i3=kone3[i]-1
@@ -139,10 +124,11 @@ for power in range(1, 6):
     
     end=time.time()
     print("")
-    print("Tempo: %f" %(end-start))
+    print("Time: %f" %(end-start))
+    print("Done")
     print("")
     
-    #solucionar por selecao de index
+    #Simple solver
     
     F=np.zeros(((nely+1)*(nelx+1)*2))
     KG=KG.tocsr()
@@ -152,18 +138,19 @@ for power in range(1, 6):
     
     D=np.zeros(((nely+1)*(nelx+1)*2))
     
-    print("Solucionando por selecao de index")
+    print("Using a simple solver")
     
     start=time.time()
     D[freedofs]=spsolve(KG[np.ix_(freedofs,freedofs)],F[freedofs])
     end=time.time()
     print("")
     print("Tempo: %f" %(end-start))
+    print("Done")
     print("")
     
-    #plotar malha deformada
+    #ploting deslocated mesh
     
-    print("Plotando resultados")
+    print("Ploting results")
     
     Dx=D[0:(nelx+1)*(nely+1)*2+1:2]
     Dy=D[1:(nelx+1)*(nely+1)*2+1:2]
@@ -174,12 +161,12 @@ for power in range(1, 6):
     for i in range(0,(nelx*nely)):
         
         e=i+1
-        print("\r elemento desenhado: " .format(e)+str(e), end="")
+        print("\r drawing element: " .format(e)+str(e), end="")
         
         plt.plot([Dxx[kone1[i]-1],Dxx[kone2[i]-1],Dxx[kone3[i]-1],Dxx[kone4[i]-1],Dxx[kone1[i]-1]],[Dyy[kone1[i]-1],Dyy[kone2[i]-1],Dyy[kone3[i]-1],Dyy[kone4[i]-1],Dyy[kone1[i]-1]], "-b")
 
     print("")
-    print("end")
+    print("done")
     print("")
     
     plt.show()
